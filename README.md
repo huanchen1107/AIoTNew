@@ -1,6 +1,8 @@
 # AIoT Temperature & Humidity Monitor (AIoTNew)
 
-Welcome to **AIoTNew**! This is a modern, high-fidelity AIoT environmental tracking system. It persistence-tracks temperature and humidity combinations in an SQLite3 database and visualizes them on a glassmorphic dashboard with Highcharts.js. 
+Welcome to **AIoTNew**! This is a modern, high-fidelity AIoT environmental tracking system. It persistence-tracks temperature and humidity combinations in an SQLite3 database and visualizes them on a glassmorphic dashboard with Highcharts.js.
+
+🚀 **Live Demo**: [https://aiot0.vercel.app/](https://aiot0.vercel.app/) 
 
 ---
 
