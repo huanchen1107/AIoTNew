@@ -20,9 +20,16 @@ def init_db():
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         humidity REAL DEFAULT 0.0,
         temperature REAL DEFAULT 0.0,
+        comfort_rule_status INTEGER DEFAULT NULL,
         time DATETIME DEFAULT CURRENT_TIMESTAMP
     )
     """)
+    
+    # Check if comfort_rule_status column exists, if not, ALTER table to add it
+    cursor.execute("PRAGMA table_info(sensors)")
+    columns = [info[1] for info in cursor.fetchall()]
+    if 'comfort_rule_status' not in columns:
+        cursor.execute("ALTER TABLE sensors ADD COLUMN comfort_rule_status INTEGER DEFAULT NULL")
     
     # 2. Create trigger to update timestamp on UPDATE
     cursor.execute("""
@@ -80,12 +87,15 @@ def add_data():
         
     # Read parameters from JSON body or Form data
     data = request.get_json(silent=True)
+    rule_active = False
     if data:
         temperature = data.get('temperature')
         humidity = data.get('humidity')
+        rule_active = bool(data.get('rule_active'))
     else:
         temperature = request.form.get('temperature')
         humidity = request.form.get('humidity')
+        rule_active = request.form.get('rule_active') in ['true', '1', True]
         
     if temperature is None or humidity is None:
         return jsonify({
@@ -103,11 +113,18 @@ def add_data():
         }), 400
 
     try:
+        comfort_rule_status = None
+        if rule_active:
+            if 10.0 <= temp_val <= 40.0 and 20.0 <= hum_val <= 50.0:
+                comfort_rule_status = 1
+            else:
+                comfort_rule_status = 0
+
         conn = sqlite3.connect(DB_FILE)
         cursor = conn.cursor()
         cursor.execute(
-            "INSERT INTO sensors (temperature, humidity) VALUES (?, ?)",
-            (temp_val, hum_val)
+            "INSERT INTO sensors (temperature, humidity, comfort_rule_status) VALUES (?, ?, ?)",
+            (temp_val, hum_val, comfort_rule_status)
         )
         conn.commit()
         last_id = cursor.lastrowid
@@ -119,7 +136,8 @@ def add_data():
             "data": {
                 "id": last_id,
                 "temperature": temp_val,
-                "humidity": hum_val
+                "humidity": hum_val,
+                "comfort_rule_status": comfort_rule_status
             }
         }), 201
     except Exception as e:
@@ -142,7 +160,7 @@ def get_data():
             return jsonify([]), 200
             
         # Get the latest 100 entries ordered chronologically
-        cursor.execute("SELECT * FROM (SELECT id, temperature, humidity, time FROM sensors ORDER BY id DESC LIMIT 100) ORDER BY id ASC")
+        cursor.execute("SELECT * FROM (SELECT id, temperature, humidity, comfort_rule_status, time FROM sensors ORDER BY id DESC LIMIT 100) ORDER BY id ASC")
         rows = cursor.fetchall()
         conn.close()
         
@@ -173,11 +191,17 @@ def get_data():
             else:
                 status, description = calculate_health_status(temp, hum)
 
+            # Extract custom comfort_rule_status
+            rule_status = None
+            if r["comfort_rule_status"] is not None:
+                rule_status = int(r["comfort_rule_status"])
+
             readings.append({
                 "id": r["id"],
                 "temperature": temp,
                 "humidity": hum,
                 "time": r["time"],
+                "comfort_rule_status": rule_status,
                 "health_status": status,
                 "health_description": description
             })

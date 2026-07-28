@@ -526,6 +526,14 @@
           </label>
         </div>
 
+        <div class="switch-container">
+          <span>Apply Custom Comfort Rule</span>
+          <label class="switch">
+            <input type="checkbox" id="comfort-rule-toggle">
+            <span class="slider"></span>
+          </label>
+        </div>
+
         <form id="sim-form">
           <div class="form-group">
             <label for="input-temp">Set Temperature (°C)</label>
@@ -550,6 +558,21 @@
           </div>
           <div class="health-description-container" id="health-description">
             No environmental data received yet. Toggle simulation or post a data point to trigger comfort calculations.
+          </div>
+        </div>
+      </div>
+
+      <!-- Custom Comfort Rule (Active when toggle is ON) -->
+      <div class="glass-card" id="comfort-rule-card" style="display: none;">
+        <div class="section-title">
+          <span>⚖️ Custom Comfort Rule</span>
+        </div>
+        <div style="min-height: 80px;">
+          <div class="health-badge badge-unknown" id="comfort-rule-badge">
+            Inactive
+          </div>
+          <div class="health-description-container" id="comfort-rule-description">
+            Toggle "Apply Custom Comfort Rule" and send sensor data to calculate and persist binary comfort status.
           </div>
         </div>
       </div>
@@ -743,6 +766,9 @@
           if (latest.health_status) {
             updateHealthBadge(latest.health_status, latest.health_description || '');
           }
+
+          // Update Custom Comfort Rule badge
+          updateComfortRuleBadge(latest.comfort_rule_status);
         }
       } catch (err) {
         logMessage('ERROR', `Failed to fetch data: ${err.message}`);
@@ -776,15 +802,46 @@
     }
 
     // ==========================================
+    // PHASE 3: CUSTOM COMFORT RULE VISUALIZER
+    // ==========================================
+    function updateComfortRuleBadge(status) {
+      const badge = document.getElementById('comfort-rule-badge');
+      const desc = document.getElementById('comfort-rule-description');
+      const card = document.getElementById('comfort-rule-card');
+      
+      if (status === null || status === undefined) {
+        // If no rule status exists, hide card if toggle is OFF
+        if (!document.getElementById('comfort-rule-toggle').checked) {
+          card.style.display = 'none';
+        }
+        return;
+      }
+      
+      card.style.display = 'block';
+      badge.className = 'health-badge'; // Reset classes
+      
+      if (status === 1) {
+        badge.textContent = 'Comfortable';
+        badge.classList.add('badge-safe');
+        desc.textContent = 'Current environmental conditions (temperature and humidity) fall within the defined comfort rule limits (10-40°C, 20-50% RH).';
+      } else {
+        badge.textContent = 'Uncomfortable';
+        badge.classList.add('badge-danger');
+        desc.textContent = 'Current environmental conditions are outside the comfort rule limits. Temperature should be 10-40°C and humidity 20-50% RH.';
+      }
+    }
+
+    // ==========================================
     // PHASE 3: SENSOR DATA INSERTION
     // ==========================================
     async function sendData(temp, hum) {
-      logMessage('INFO', `Posting data point: Temp=${temp}°C, Hum=${hum}%`);
+      const ruleActive = document.getElementById('comfort-rule-toggle').checked;
+      logMessage('INFO', `Posting data point: Temp=${temp}°C, Hum=${hum}% (Rule Active: ${ruleActive})`);
       try {
         const response = await fetch(CONFIG.addEndpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ temperature: temp, humidity: hum })
+          body: JSON.stringify({ temperature: temp, humidity: hum, rule_active: ruleActive })
         });
         
         const result = await response.json();
@@ -825,6 +882,22 @@
       } else {
         logMessage('SYSTEM', 'Auto-simulation disabled.');
         clearInterval(simTimer);
+      }
+    });
+
+    // Custom Comfort Rule toggle handler
+    document.getElementById('comfort-rule-toggle').addEventListener('change', function(e) {
+      const card = document.getElementById('comfort-rule-card');
+      if (e.target.checked) {
+        logMessage('SYSTEM', 'Custom comfort rule enabled for subsequent data points.');
+        card.style.display = 'block';
+        const badge = document.getElementById('comfort-rule-badge');
+        badge.className = 'health-badge badge-unknown';
+        badge.textContent = 'Pending Data...';
+        document.getElementById('comfort-rule-description').textContent = 'Please send a data point or enable auto-simulation to calculate the comfort status.';
+      } else {
+        logMessage('SYSTEM', 'Custom comfort rule disabled.');
+        card.style.display = 'none';
       }
     });
 

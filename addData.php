@@ -20,8 +20,16 @@ try {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         humidity REAL DEFAULT 0.0,
         temperature REAL DEFAULT 0.0,
+        comfort_rule_status INTEGER DEFAULT NULL,
         time DATETIME DEFAULT CURRENT_TIMESTAMP
     )");
+
+    // Check if comfort_rule_status column exists, if not, ALTER TABLE
+    $q = $db->query("PRAGMA table_info(sensors)");
+    $cols = $q->fetchAll(PDO::FETCH_COLUMN, 1);
+    if (!in_array('comfort_rule_status', $cols)) {
+        $db->exec("ALTER TABLE sensors ADD COLUMN comfort_rule_status INTEGER DEFAULT NULL");
+    }
 
     // 3. Create update trigger to update time column on update
     $db->exec("CREATE TRIGGER IF NOT EXISTS update_sensor_time 
@@ -42,20 +50,25 @@ try {
 $temperature = null;
 $humidity = null;
 
+$rule_active = false;
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Check if JSON body is received
     $input = json_decode(file_get_contents('php://input'), true);
     if ($input !== null) {
         $temperature = isset($input['temperature']) ? floatval($input['temperature']) : null;
         $humidity = isset($input['humidity']) ? floatval($input['humidity']) : null;
+        $rule_active = !empty($input['rule_active']);
     } else {
         $temperature = isset($_POST['temperature']) ? floatval($_POST['temperature']) : null;
         $humidity = isset($_POST['humidity']) ? floatval($_POST['humidity']) : null;
+        $rule_active = isset($_POST['rule_active']) && ($_POST['rule_active'] === 'true' || $_POST['rule_active'] == 1);
     }
 } else {
     // Fallback to GET parameters
     $temperature = isset($_GET['temperature']) ? floatval($_GET['temperature']) : null;
     $humidity = isset($_GET['humidity']) ? floatval($_GET['humidity']) : null;
+    $rule_active = isset($_GET['rule_active']) && ($_GET['rule_active'] === 'true' || $_GET['rule_active'] == 1);
 }
 
 if ($temperature === null || $humidity === null) {
@@ -68,10 +81,20 @@ if ($temperature === null || $humidity === null) {
 
 // 5. Insert data into sensors table
 try {
-    $stmt = $db->prepare("INSERT INTO sensors (temperature, humidity) VALUES (:temperature, :humidity)");
+    $comfort_rule_status = null;
+    if ($rule_active) {
+        if ($temperature >= 10.0 && $temperature <= 40.0 && $humidity >= 20.0 && $humidity <= 50.0) {
+            $comfort_rule_status = 1;
+        } else {
+            $comfort_rule_status = 0;
+        }
+    }
+
+    $stmt = $db->prepare("INSERT INTO sensors (temperature, humidity, comfort_rule_status) VALUES (:temperature, :humidity, :comfort_rule_status)");
     $stmt->execute([
         ':temperature' => $temperature,
-        ':humidity' => $humidity
+        ':humidity' => $humidity,
+        ':comfort_rule_status' => $comfort_rule_status
     ]);
     
     $last_id = $db->lastInsertId();
@@ -83,6 +106,7 @@ try {
             "id" => intval($last_id),
             "temperature" => $temperature,
             "humidity" => $humidity,
+            "comfort_rule_status" => $comfort_rule_status,
             "time" => date("Y-m-d H:i:s")
         ]
     ]);

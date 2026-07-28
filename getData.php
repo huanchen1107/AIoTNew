@@ -30,7 +30,7 @@ try {
 
     // 2. Fetch the latest 100 readings, ordered by ID ascending (chronological order)
     // We subquery to get the latest 100, then order them chronologically.
-    $stmt = $db->query("SELECT * FROM (SELECT id, temperature, humidity, time FROM sensors ORDER BY id DESC LIMIT 100) ORDER BY id ASC");
+    $stmt = $db->query("SELECT * FROM (SELECT id, temperature, humidity, comfort_rule_status, time FROM sensors ORDER BY id DESC LIMIT 100) ORDER BY id ASC");
     $readings = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     // Convert numeric fields to appropriate types
@@ -38,6 +38,9 @@ try {
         $reading['id'] = intval($reading['id']);
         $reading['temperature'] = floatval($reading['temperature']);
         $reading['humidity'] = floatval($reading['humidity']);
+        if (isset($reading['comfort_rule_status']) && $reading['comfort_rule_status'] !== null) {
+            $reading['comfort_rule_status'] = intval($reading['comfort_rule_status']);
+        }
     }
 
     echo json_encode($readings);
