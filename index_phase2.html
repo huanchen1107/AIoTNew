@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AIoT Sensor Dashboard</title>
+  <title>AIoT Dashboard - Phase 2 (Flask)</title>
   
   <!-- Modern Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -24,8 +24,6 @@
       --primary-color: #3b82f6;      /* Blue */
       --secondary-color: #10b981;    /* Emerald Green */
       --accent-color: #8b5cf6;       /* Violet */
-      --danger-color: #ef4444;       /* Red */
-      --warning-color: #f59e0b;      /* Yellow */
       --font-main: 'Outfit', sans-serif;
       --font-mono: 'JetBrains Mono', monospace;
     }
@@ -137,13 +135,6 @@
       background-color: var(--secondary-color);
       border-radius: 50%;
       box-shadow: 0 0 10px var(--secondary-color);
-      animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-      70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
-      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
     }
 
     main {
@@ -351,54 +342,6 @@
       transform: translateX(20px);
     }
 
-    /* AI Predictor Health Card */
-    .health-card {
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
-      padding: 1rem;
-      background: rgba(255, 255, 255, 0.02);
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-
-    .health-badge {
-      align-self: flex-start;
-      padding: 0.35rem 0.75rem;
-      border-radius: 6px;
-      font-size: 0.85rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-    }
-
-    .badge-unknown {
-      background-color: rgba(255, 255, 255, 0.1);
-      color: var(--text-muted);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-    }
-
-    .badge-safe {
-      background-color: rgba(16, 185, 129, 0.15);
-      color: var(--secondary-color);
-      border: 1px solid rgba(16, 185, 129, 0.3);
-    }
-
-    .badge-caution {
-      background-color: rgba(245, 158, 11, 0.15);
-      color: var(--warning-color);
-      border: 1px solid rgba(245, 158, 11, 0.3);
-    }
-
-    .badge-danger {
-      background-color: rgba(239, 68, 68, 0.15);
-      color: var(--danger-color);
-      border: 1px solid rgba(239, 68, 68, 0.3);
-    }
-
     /* Main Content (Chart) */
     .chart-container {
       display: flex;
@@ -486,14 +429,17 @@
       <div class="logo-icon">A</div>
       <h1>AIoT Temperature & Humidity Monitor</h1>
     </div>
+    
+    <!-- Phase Navigation -->
     <div class="phase-selector">
       <a href="index_phase1.html" class="phase-link" id="nav-p1">Phase 1 (PHP)</a>
-      <a href="index_phase2.html" class="phase-link" id="nav-p2">Phase 2 (Flask)</a>
+      <a href="index_phase2.html" class="phase-link active" id="nav-p2">Phase 2 (Flask)</a>
       <a href="index_phase3.html" class="phase-link" id="nav-p3">Phase 3 (AI/ML)</a>
     </div>
+
     <div class="system-status">
       <div class="status-dot"></div>
-      <span id="backend-label">Phase 1: PHP Active</span>
+      <span id="backend-label">Phase 2: Flask Active</span>
     </div>
   </header>
 
@@ -546,22 +492,6 @@
         </form>
       </div>
 
-      <!-- AI Health Classification (Ready for Phase 3) -->
-      <div class="glass-card">
-        <div class="section-title">
-          <span>🧠 AI/ML Comfort Analysis</span>
-        </div>
-        <div class="health-card">
-          <label>Status Classification</label>
-          <div class="health-badge badge-unknown" id="health-badge">
-            Unknown (Phase 3 AI)
-          </div>
-          <p id="health-description" style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">
-            Awaiting training and deployment of the machine learning model in Phase 3.
-          </p>
-        </div>
-      </div>
-
     </div>
 
     <!-- Right Area: Chart and Logs -->
@@ -584,7 +514,7 @@
           <div class="log-line">
             <span class="log-time">[14:04:45]</span>
             <span class="log-info">SYSTEM</span>
-            <span>Console initialized. Ready for communication.</span>
+            <span>Console initialized. Ready for communication (Phase 2).</span>
           </div>
         </div>
       </div>
@@ -593,19 +523,17 @@
   </main>
 
   <footer>
-    <p>AIoT Dashboard &copy; 2026. Powered by Highcharts.js & SQLite3.</p>
+    <p>AIoT Dashboard &copy; 2026. Powered by Highcharts.js & Flask.</p>
   </footer>
 
   <script>
     // ==========================================
-    // PHASE 1 & 2: CONFIGURATION & STATE
+    // PHASE 2: CONFIGURATION & STATE (Flask APIs)
     // ==========================================
     const CONFIG = {
-      // Relative paths are used as a fallback for Phase 1 PHP,
-      // and dynamically updated for Phase 2 Flask endpoints.
-      addEndpoint: 'addData.php', 
-      getEndpoint: 'getData.php',
-      pollInterval: 3000 // Poll interval for chart updates (3 seconds)
+      addEndpoint: 'api/add_data', 
+      getEndpoint: 'api/get_data',
+      pollInterval: 3000
     };
 
     let chart = null;
@@ -613,7 +541,7 @@
     let simTimer = null;
 
     // ==========================================
-    // PHASE 1: LOGGING UTILITIES
+    // PHASE 2: LOGGING UTILITIES
     // ==========================================
     function logMessage(type, message) {
       const body = document.getElementById('terminal-body');
@@ -636,40 +564,7 @@
     }
 
     // ==========================================
-    // PHASE 2: DYNAMIC BACKEND DETECTION
-    // ==========================================
-    function detectBackend() {
-      // Verifies if the backend is Flask (Phase 2/3) or falls back to PHP (Phase 1)
-      fetch('api/get_data').then(res => {
-        const contentType = res.headers.get('content-type');
-        // A valid JSON Content-Type indicates the Flask API backend is running
-        if (res.ok && contentType && contentType.includes('application/json')) {
-          CONFIG.addEndpoint = 'api/add_data';
-          CONFIG.getEndpoint = 'api/get_data';
-          document.getElementById('backend-label').textContent = 'Phase 2/3: Flask Active';
-          logMessage('SYSTEM', 'Flask backend detected. Dynamically routing api endpoints.');
-          
-          document.getElementById('nav-p1').classList.remove('active');
-          document.getElementById('nav-p2').classList.remove('active');
-          document.getElementById('nav-p3').classList.add('active');
-        } else {
-          throw new Error('Not a JSON API response');
-        }
-      }).catch(err => {
-        // Fallback to Phase 1 PHP scripts if Flask API is not responding or serving redirect pages
-        CONFIG.addEndpoint = 'addData.php';
-        CONFIG.getEndpoint = 'getData.php';
-        document.getElementById('backend-label').textContent = 'Phase 1: PHP Active';
-        logMessage('SYSTEM', 'PHP backend detected. Using PHP scripts for database transactions.');
-        
-        document.getElementById('nav-p1').classList.add('active');
-        document.getElementById('nav-p2').classList.remove('active');
-        document.getElementById('nav-p3').classList.remove('active');
-      });
-    }
-
-    // ==========================================
-    // PHASE 1: HIGHCHARTS VISUALIZATION
+    // PHASE 2: HIGHCHARTS VISUALIZATION
     // ==========================================
     function initChart() {
       chart = Highcharts.chart('sensor-chart', {
@@ -680,7 +575,7 @@
           plotShadow: false
         },
         accessibility: {
-          enabled: false // Silence the accessibility warnings in the console
+          enabled: false
         },
         title: {
           text: 'Real-time Temperature & Humidity Readings',
@@ -745,7 +640,7 @@
     }
 
     // ==========================================
-    // PHASE 1 & 2: DATA INTEGRITY & FETCHING
+    // PHASE 2: DATA INTEGRITY & FETCHING
     // ==========================================
     async function refreshData() {
       try {
@@ -771,24 +666,16 @@
             humSeries.push(parseFloat(item.humidity));
           });
           
-          // Redraw line charts with new series data
           chart.xAxis[0].setCategories(categories, false);
           chart.series[0].setData(tempSeries, false);
           chart.series[1].setData(humSeries, true);
 
-          // Update main UI metrics cards with the latest value
           const latest = data[data.length - 1];
           document.getElementById('cur-temp').textContent = latest.temperature.toFixed(1);
           document.getElementById('cur-hum').textContent = latest.humidity.toFixed(1);
 
-          // Fluctuating simulator inputs start from the latest reading
           document.getElementById('input-temp').value = latest.temperature.toFixed(1);
           document.getElementById('input-hum').value = latest.humidity.toFixed(1);
-
-          // [PHASE 3] Check if the database record carries ML comfort classification status
-          if (latest.health_status) {
-            updateHealthBadge(latest.health_status, latest.health_description || '');
-          }
         }
       } catch (err) {
         logMessage('ERROR', `Failed to fetch data: ${err.message}`);
@@ -796,33 +683,7 @@
     }
 
     // ==========================================
-    // PHASE 3: ML HEALTH CLASSIFICATION VISUALIZER
-    // ==========================================
-    function updateHealthBadge(status, description = '') {
-      const badge = document.getElementById('health-badge');
-      const desc = document.getElementById('health-description');
-      
-      badge.className = 'health-badge'; // Reset classes
-      badge.textContent = status;
-
-      const normStatus = status.toLowerCase();
-      if (normStatus === 'safe' || normStatus === 'healthy' || normStatus === 'comfort') {
-        badge.classList.add('badge-safe');
-      } else if (normStatus === 'caution' || normStatus === 'warning') {
-        badge.classList.add('badge-caution');
-      } else if (normStatus === 'danger' || normStatus === 'unhealthy') {
-        badge.classList.add('badge-danger');
-      } else {
-        badge.classList.add('badge-unknown');
-      }
-
-      if (description) {
-        desc.textContent = description;
-      }
-    }
-
-    // ==========================================
-    // PHASE 1 & 2: SENSOR DATA INSERTION
+    // PHASE 2: SENSOR DATA INSERTION
     // ==========================================
     async function sendData(temp, hum) {
       logMessage('INFO', `Posting data point: Temp=${temp}°C, Hum=${hum}%`);
@@ -847,7 +708,7 @@
     }
 
     // ==========================================
-    // PHASE 1: EVENT LISTENERS & AUTO-SIMULATION
+    // PHASE 2: EVENT LISTENERS & AUTO-SIMULATION
     // ==========================================
     document.getElementById('sim-form').addEventListener('submit', function(e) {
       e.preventDefault();
@@ -856,16 +717,13 @@
       sendData(temp, hum);
     });
 
-    // Auto Simulation toggle
     document.getElementById('auto-sim-toggle').addEventListener('change', function(e) {
       if (e.target.checked) {
         logMessage('SYSTEM', 'Auto-simulation enabled.');
-        // Periodically posts randomized sensor read walks
         simTimer = setInterval(() => {
           let currentTemp = parseFloat(document.getElementById('input-temp').value) || 25.0;
           let currentHum = parseFloat(document.getElementById('input-hum').value) || 50.0;
           
-          // Walk fluctuation range: Temp (-1.0 to 1.0), Hum (-2.0 to 2.0)
           const newTemp = Math.min(Math.max(currentTemp + (Math.random() * 2 - 1), 10), 45).toFixed(1);
           const newHum = Math.min(Math.max(currentHum + (Math.random() * 4 - 2), 10), 95).toFixed(1);
           
@@ -881,11 +739,8 @@
     // BOOTSTRAP INITIALIZATION
     // ==========================================
     window.addEventListener('DOMContentLoaded', () => {
-      detectBackend();
       initChart();
       refreshData();
-      
-      // Keep fetching data in background loops
       pollTimer = setInterval(refreshData, CONFIG.pollInterval);
     });
   </script>
