@@ -1,6 +1,6 @@
-# _MyProjectTemplate_
+# AIoTNew
 
-Welcome to **_MyProjectTemplate_**! This is a modern, production-ready project template designed to bootstrap web application development quickly.
+Welcome to **AIoTNew**! This is a modern, production-ready project template designed to bootstrap web application development quickly.
 
 ## 🚀 Features
 
@@ -12,8 +12,8 @@ Welcome to **_MyProjectTemplate_**! This is a modern, production-ready project t
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/huanchen1107/_MyProjectTemplate_.git
-cd _MyProjectTemplate_
+git clone https://github.com/huanchen1107/AIoTNew.git
+cd AIoTNew
 ```
 
 ### 2. Install Dependencies
