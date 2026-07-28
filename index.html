@@ -596,18 +596,21 @@
 
     // Detect endpoint backend version
     function detectBackend() {
-      // If we are served from python, the endpoints path might need update,
-      // or we keep them relative to current origin.
-      // We will automatically change label if we see we're communicating with Flask api.
       fetch('api/get_data').then(res => {
-        if(res.ok) {
+        const contentType = res.headers.get('content-type');
+        if (res.ok && contentType && contentType.includes('application/json')) {
           CONFIG.addEndpoint = 'api/add_data';
           CONFIG.getEndpoint = 'api/get_data';
           document.getElementById('backend-label').textContent = 'Phase 2/3: Flask Active';
           logMessage('SYSTEM', 'Flask backend detected. Dynamically routing api endpoints.');
+        } else {
+          throw new Error('Not a JSON API response');
         }
       }).catch(err => {
         // Fallback to PHP endpoints (relative)
+        CONFIG.addEndpoint = 'addData.php';
+        CONFIG.getEndpoint = 'getData.php';
+        document.getElementById('backend-label').textContent = 'Phase 1: PHP Active';
         logMessage('SYSTEM', 'PHP backend detected. Using PHP scripts for database transactions.');
       });
     }
