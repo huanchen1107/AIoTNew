@@ -382,6 +382,20 @@
       color: #9ca3af;
     }
 
+    .badge-comfortable {
+      background-color: #10b981 !important;
+      color: #ffffff !important;
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+      border: 1px solid #10b981 !important;
+    }
+
+    .badge-uncomfortable {
+      background-color: #ef4444 !important;
+      color: #ffffff !important;
+      box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
+      border: 1px solid #ef4444 !important;
+    }
+
     .health-description-container {
       font-size: 0.9rem;
       line-height: 1.4;
@@ -822,11 +836,11 @@
       
       if (status === 1) {
         badge.textContent = 'Comfortable';
-        badge.classList.add('badge-safe');
+        badge.classList.add('badge-comfortable');
         desc.textContent = 'Current environmental conditions (temperature and humidity) fall within the defined comfort rule limits (10-40°C, 20-50% RH).';
       } else {
         badge.textContent = 'Uncomfortable';
-        badge.classList.add('badge-danger');
+        badge.classList.add('badge-uncomfortable');
         desc.textContent = 'Current environmental conditions are outside the comfort rule limits. Temperature should be 10-40°C and humidity 20-50% RH.';
       }
     }
