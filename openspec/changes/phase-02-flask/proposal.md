@@ -6,8 +6,8 @@ Migrate the backend infrastructure from PHP to Python Flask. This establishes a 
 
 - Implement a Flask application in `app.py` that serves the SQLite3 database operations.
 - Map the endpoint `addData.php` to `/api/add_data` (POST) and `getData.php` to `/api/get_data` (GET) inside Flask.
-- Implement `index_phase2.html` and update root landing page `index.html` to automatically route requests to the Flask endpoints.
-- Serve `index.html` (and phase specific dashboard templates) as the default static homepage `/` of the Flask server.
+- Implement `index_phase2.html` and update `app.py` to route root requests to Flask endpoints.
+- Serve `index_phase3.html` (and other phase templates) as the static dashboard pages of the Flask server.
 
 ## Capabilities
 
