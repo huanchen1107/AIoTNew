@@ -70,8 +70,8 @@ def add_cors_headers(response):
 
 @app.route('/')
 def index():
-    """Serve the index.html file from the root directory."""
-    return send_from_directory('.', 'index.html')
+    """Serve the index_phase3.html file from the root directory."""
+    return send_from_directory('.', 'index_phase3.html')
 
 @app.route('/api/add_data', methods=['POST', 'OPTIONS'])
 def add_data():
