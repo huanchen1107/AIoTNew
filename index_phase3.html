@@ -757,17 +757,43 @@
           const categories = [];
           const tempSeries = [];
           const humSeries = [];
+          const plotBands = [];
           
-          data.forEach(item => {
+          data.forEach((item, index) => {
             const t = item.time ? item.time.split(' ')[1] || item.time : 'N/A';
             categories.push(t);
             tempSeries.push(parseFloat(item.temperature));
             humSeries.push(parseFloat(item.humidity));
+            
+            if (item.comfort_rule_status === 1) {
+              plotBands.push({
+                from: index - 0.5,
+                to: index + 0.5,
+                color: 'rgba(16, 185, 129, 0.1)',
+                label: {
+                  text: '😊 Comfort',
+                  style: { color: '#34d399', fontSize: '9px', fontWeight: 'bold' },
+                  y: 15
+                }
+              });
+            } else if (item.comfort_rule_status === 0) {
+              plotBands.push({
+                from: index - 0.5,
+                to: index + 0.5,
+                color: 'rgba(239, 68, 68, 0.1)',
+                label: {
+                  text: '⚠️ Alert',
+                  style: { color: '#f87171', fontSize: '9px', fontWeight: 'bold' },
+                  y: 15
+                }
+              });
+            }
           });
           
           chart.xAxis[0].setCategories(categories, false);
           chart.series[0].setData(tempSeries, false);
-          chart.series[1].setData(humSeries, true);
+          chart.series[1].setData(humSeries, false);
+          chart.xAxis[0].update({ plotBands: plotBands }, true);
 
           const latest = data[data.length - 1];
           document.getElementById('cur-temp').textContent = latest.temperature.toFixed(1);
