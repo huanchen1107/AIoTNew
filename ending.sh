@@ -18,14 +18,14 @@ fi
 
 if [ -n "$TASK_FILE" ]; then
   echo "📊 Checking tasks in $TASK_FILE..."
-  REMAINING=$(grep -c "-\s*\[ \]" "$TASK_FILE" || true)
-  COMPLETED=$(grep -c "-\s*\[[xX]\]" "$TASK_FILE" || true)
+  REMAINING=$(grep -c -e "-[[:space:]]*\[[[:space:]]\]" "$TASK_FILE" || true)
+  COMPLETED=$(grep -c -e "-[[:space:]]*\[[xX]\]" "$TASK_FILE" || true)
   TOTAL=$((REMAINING + COMPLETED))
   
   echo "  Progress: $COMPLETED completed, $REMAINING remaining out of $TOTAL total."
   if [ "$REMAINING" -gt 0 ]; then
     echo "  ⚠️  Pending tasks remaining:"
-    grep "-\s*\[ \]" "$TASK_FILE"
+    grep -e "-[[:space:]]*\[[[:space:]]\]" "$TASK_FILE"
   else
     echo "  🎉 Fantastic! All tasks are fully completed."
   fi
@@ -45,8 +45,8 @@ if [ -n "$TASK_FILE" ]; then
       read -p "   Press Enter when you are done to continue..."
     fi
     # Recheck remaining/completed tasks
-    REMAINING=$(grep -c "-\s*\[ \]" "$TASK_FILE" || true)
-    COMPLETED=$(grep -c "-\s*\[[xX]\]" "$TASK_FILE" || true)
+    REMAINING=$(grep -c -e "-[[:space:]]*\[[[:space:]]\]" "$TASK_FILE" || true)
+    COMPLETED=$(grep -c -e "-[[:space:]]*\[[xX]\]" "$TASK_FILE" || true)
     TOTAL=$((REMAINING + COMPLETED))
     echo "  Updated Progress: $COMPLETED completed, $REMAINING remaining out of $TOTAL total."
   fi
