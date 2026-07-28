@@ -4,7 +4,10 @@ import os
 import pickle
 
 app = Flask(__name__, static_folder='.', static_url_path='')
-DB_FILE = 'aiotdb.db'
+if os.environ.get('VERCEL'):
+    DB_FILE = '/tmp/aiotdb.db'
+else:
+    DB_FILE = 'aiotdb.db'
 
 def init_db():
     """Initialize the SQLite database and create the schema and trigger if not exists."""
