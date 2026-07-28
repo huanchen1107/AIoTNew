@@ -15,7 +15,7 @@ The Flask application `/api/get_data` endpoint SHALL predict the health comfort 
 - **THEN** the system SHALL return sensor records, each containing `health_status` and `health_description` fields
 
 ### Requirement: Frontend Comfort Status Badge
-The dashboard `index.html` SHALL display a color-coded status badge and textual recommendation matching the classification returned by the backend.
+The dashboard `index_phase3.html` (and root `index.html`) SHALL display a color-coded status badge and textual recommendation matching the classification returned by the backend.
 
 #### Scenario: Displaying comfort warnings
 - **WHEN** the latest reading has a `health_status` of "Danger"

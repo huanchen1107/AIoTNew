@@ -23,7 +23,7 @@ We choose SQLite3 (`aiotdb.db`) as our persistence layer.
 * *Alternatives considered*: MySQL/PostgreSQL (overkill for this prototype, requires server setup).
 
 ### 2. Decoupled JSON API Architecture
-The frontend (`index.html`) communicates with the backend scripts (`addData.php` and `getData.php`) exclusively via asynchronous HTTP requests (`Fetch API`) exchanging JSON.
+The frontend (`index_phase1.html` and `index.html`) communicates with the backend scripts (`addData.php` and `getData.php`) exclusively via asynchronous HTTP requests (`Fetch API`) exchanging JSON.
 * *Rationale*: This decoupling separates concerns and makes migrating to a Python Flask API in Phase 2 seamless—we will only need to redirect endpoints in the frontend rather than rebuilding the view.
 * *Alternatives considered*: Server-side rendered PHP (would require major refactoring when moving to Flask).
 

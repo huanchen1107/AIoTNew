@@ -8,10 +8,10 @@ The backend SHALL expose a `getData.php` endpoint that retrieves the latest 100 
 - **THEN** the system SHALL return a HTTP 200 response with a JSON array of the latest 100 sensor readings
 
 ### Requirement: Interactive Highcharts Dashboard
-The dashboard `index.html` SHALL display a dual-axis Highcharts.js line chart mapping temperature and humidity trends.
+The dashboards `index_phase1.html` (and the entry point `index.html`) SHALL display a dual-axis Highcharts.js line chart mapping temperature and humidity trends.
 
 #### Scenario: Rendering sensor data on load
-- **WHEN** the dashboard page `index.html` loads in the browser
+- **WHEN** the dashboard page `index_phase1.html` (or `index.html`) loads in the browser
 - **THEN** it SHALL fetch historical readings and render them on the chart
 
 ### Requirement: Mock Sensor Simulation

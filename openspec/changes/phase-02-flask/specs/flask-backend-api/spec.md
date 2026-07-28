@@ -1,11 +1,11 @@
 ## ADDED Requirements
 
 ### Requirement: Flask Home Page Route
-The Flask application SHALL serve the dashboard `index.html` file at the root URL `/`.
+The Flask application SHALL serve the dashboard `index.html` file (along with the phase-specific pages `index_phase2.html` and `index_phase3.html`) at the root URL `/`.
 
 #### Scenario: User visits homepage
 - **WHEN** a browser requests GET `/` from the Flask server
-- **THEN** the server SHALL return `index.html` with a HTTP 200 OK status
+- **THEN** the server SHALL return `index.html` (or the corresponding phase-specific HTML file) with a HTTP 200 OK status
 
 ### Requirement: Flask Sensor Insertion Route
 The Flask application SHALL expose a POST endpoint at `/api/add_data` that receives temperature and humidity readings and stores them in the database.

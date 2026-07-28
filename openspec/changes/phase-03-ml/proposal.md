@@ -7,7 +7,7 @@ Deploy machine learning (AI/ML) functionality to predict environmental safety or
 - Train a classification model (Decision Tree or similar classifier) on a custom CSV file containing historical combinations of temperature, humidity, and health status classes.
 - Save the trained model to `model.pkl`.
 - Update the Flask server in `app.py` to load `model.pkl` on startup and append the classification label ("Safe", "Caution", "Danger") to each sensor reading returned by `/api/get_data`.
-- Update the dashboard `index.html` to display the real-time health status badge and corresponding comfort recommendations.
+- Create `index_phase3.html` and update root landing page `index.html` to display the real-time health status badge and corresponding comfort recommendations.
 
 ## Capabilities
 
@@ -21,5 +21,5 @@ Deploy machine learning (AI/ML) functionality to predict environmental safety or
 ## Impact
 
 - Adds `train_model.py` and the serialized model `model.pkl` to the project structure.
-- Modifies `app.py` and `index.html`.
+- Modifies `app.py`, `index.html`, and adds `index_phase3.html`.
 - Requires Python ML libraries (`scikit-learn`, `pandas`).
