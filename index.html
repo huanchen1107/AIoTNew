@@ -561,19 +561,24 @@
   </footer>
 
   <script>
-    // Configuration & State
+    // ==========================================
+    // PHASE 1 & 2: CONFIGURATION & STATE
+    // ==========================================
     const CONFIG = {
-      // endpoints are relative to location to support both php/flask without changes
+      // Relative paths are used as a fallback for Phase 1 PHP,
+      // and dynamically updated for Phase 2 Flask endpoints.
       addEndpoint: 'addData.php', 
       getEndpoint: 'getData.php',
-      pollInterval: 3000 // poll every 3 seconds
+      pollInterval: 3000 // Poll interval for chart updates (3 seconds)
     };
 
     let chart = null;
     let pollTimer = null;
     let simTimer = null;
 
-    // Log message helper
+    // ==========================================
+    // PHASE 1: LOGGING UTILITIES
+    // ==========================================
     function logMessage(type, message) {
       const body = document.getElementById('terminal-body');
       const line = document.createElement('div');
@@ -594,10 +599,14 @@
       body.scrollTop = body.scrollHeight;
     }
 
-    // Detect endpoint backend version
+    // ==========================================
+    // PHASE 2: DYNAMIC BACKEND DETECTION
+    // ==========================================
     function detectBackend() {
+      // Verifies if the backend is Flask (Phase 2/3) or falls back to PHP (Phase 1)
       fetch('api/get_data').then(res => {
         const contentType = res.headers.get('content-type');
+        // A valid JSON Content-Type indicates the Flask API backend is running
         if (res.ok && contentType && contentType.includes('application/json')) {
           CONFIG.addEndpoint = 'api/add_data';
           CONFIG.getEndpoint = 'api/get_data';
@@ -607,7 +616,7 @@
           throw new Error('Not a JSON API response');
         }
       }).catch(err => {
-        // Fallback to PHP endpoints (relative)
+        // Fallback to Phase 1 PHP scripts if Flask API is not responding or serving redirect pages
         CONFIG.addEndpoint = 'addData.php';
         CONFIG.getEndpoint = 'getData.php';
         document.getElementById('backend-label').textContent = 'Phase 1: PHP Active';
@@ -615,7 +624,9 @@
       });
     }
 
-    // Initialize Highcharts
+    // ==========================================
+    // PHASE 1: HIGHCHARTS VISUALIZATION
+    // ==========================================
     function initChart() {
       chart = Highcharts.chart('sensor-chart', {
         chart: {
@@ -625,7 +636,7 @@
           plotShadow: false
         },
         accessibility: {
-          enabled: false
+          enabled: false // Silence the accessibility warnings in the console
         },
         title: {
           text: 'Real-time Temperature & Humidity Readings',
@@ -689,7 +700,9 @@
       });
     }
 
-    // Fetch and refresh sensor data
+    // ==========================================
+    // PHASE 1 & 2: DATA INTEGRITY & FETCHING
+    // ==========================================
     async function refreshData() {
       try {
         const response = await fetch(CONFIG.getEndpoint);
@@ -708,28 +721,27 @@
           const humSeries = [];
           
           data.forEach(item => {
-            // Format timestamp for display (HH:MM:SS)
             const t = item.time ? item.time.split(' ')[1] || item.time : 'N/A';
             categories.push(t);
             tempSeries.push(parseFloat(item.temperature));
             humSeries.push(parseFloat(item.humidity));
           });
           
-          // Update charts
+          // Redraw line charts with new series data
           chart.xAxis[0].setCategories(categories, false);
           chart.series[0].setData(tempSeries, false);
-          chart.series[1].setData(humSeries, true); // redraw on last
+          chart.series[1].setData(humSeries, true);
 
-          // Update metrics with latest reading
+          // Update main UI metrics cards with the latest value
           const latest = data[data.length - 1];
           document.getElementById('cur-temp').textContent = latest.temperature.toFixed(1);
           document.getElementById('cur-hum').textContent = latest.humidity.toFixed(1);
 
-          // Update mock inputs to fluctuate around latest
+          // Fluctuating simulator inputs start from the latest reading
           document.getElementById('input-temp').value = latest.temperature.toFixed(1);
           document.getElementById('input-hum').value = latest.humidity.toFixed(1);
 
-          // Check if AI classification is included (Phase 3 update)
+          // [PHASE 3] Check if the database record carries ML comfort classification status
           if (latest.health_status) {
             updateHealthBadge(latest.health_status, latest.health_description || '');
           }
@@ -739,12 +751,14 @@
       }
     }
 
-    // Function to update the health comfort badge (Phase 3 ready)
+    // ==========================================
+    // PHASE 3: ML HEALTH CLASSIFICATION VISUALIZER
+    // ==========================================
     function updateHealthBadge(status, description = '') {
       const badge = document.getElementById('health-badge');
       const desc = document.getElementById('health-description');
       
-      badge.className = 'health-badge'; // reset
+      badge.className = 'health-badge'; // Reset classes
       badge.textContent = status;
 
       const normStatus = status.toLowerCase();
@@ -763,7 +777,9 @@
       }
     }
 
-    // Send single data point
+    // ==========================================
+    // PHASE 1 & 2: SENSOR DATA INSERTION
+    // ==========================================
     async function sendData(temp, hum) {
       logMessage('INFO', `Posting data point: Temp=${temp}°C, Hum=${hum}%`);
       try {
@@ -786,7 +802,9 @@
       }
     }
 
-    // Event Listeners & Simulation setup
+    // ==========================================
+    // PHASE 1: EVENT LISTENERS & AUTO-SIMULATION
+    // ==========================================
     document.getElementById('sim-form').addEventListener('submit', function(e) {
       e.preventDefault();
       const temp = parseFloat(document.getElementById('input-temp').value);
@@ -798,12 +816,12 @@
     document.getElementById('auto-sim-toggle').addEventListener('change', function(e) {
       if (e.target.checked) {
         logMessage('SYSTEM', 'Auto-simulation enabled.');
-        // Run simulator
+        // Periodically posts randomized sensor read walks
         simTimer = setInterval(() => {
           let currentTemp = parseFloat(document.getElementById('input-temp').value) || 25.0;
           let currentHum = parseFloat(document.getElementById('input-hum').value) || 50.0;
           
-          // Random walk simulation (-1.0 to +1.0 fluctuation)
+          // Walk fluctuation range: Temp (-1.0 to 1.0), Hum (-2.0 to 2.0)
           const newTemp = Math.min(Math.max(currentTemp + (Math.random() * 2 - 1), 10), 45).toFixed(1);
           const newHum = Math.min(Math.max(currentHum + (Math.random() * 4 - 2), 10), 95).toFixed(1);
           
@@ -815,13 +833,15 @@
       }
     });
 
-    // Start everything
+    // ==========================================
+    // BOOTSTRAP INITIALIZATION
+    // ==========================================
     window.addEventListener('DOMContentLoaded', () => {
       detectBackend();
       initChart();
       refreshData();
       
-      // Start polling
+      // Keep fetching data in background loops
       pollTimer = setInterval(refreshData, CONFIG.pollInterval);
     });
   </script>
